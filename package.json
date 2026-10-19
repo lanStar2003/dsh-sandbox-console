@@ -1,0 +1,30 @@
+{
+  "name": "dsh-sandbox-console",
+  "version": "0.1.0",
+  "description": "Fixes PowerShell exiting with 0xC0000142 under the workspace-write sandbox in DSH Desktop by giving dsh's Windows sandbox runner a hidden console.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "dsh": ">=0.2.0-rc.2 <0.3.0",
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}

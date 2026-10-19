@@ -1,0 +1,50 @@
+name: Release
+
+# Pushing a version tag (v0.1.0) tests and packs the plugin and publishes a GitHub release with
+# dsh-sandbox-console-<version>.tgz attached; dsh installs the plugin straight from that asset's URL.
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$VERSION" != "$PKG" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $PKG"
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      # No dependencies: the plugin uses only node built-ins and what dsh provides.
+      - run: npm test
+
+      - name: Pack
+        run: |
+          mkdir -p dist
+          npm pack --pack-destination dist
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          case "$VERSION" in *-*) PRE=--prerelease ;; *) PRE= ;; esac
+          gh release create "$GITHUB_REF_NAME" "dist/dsh-sandbox-console-${VERSION}.tgz" \
+            --title "dsh-sandbox-console ${VERSION}" \
+            --verify-tag \
+            --generate-notes \
+            $PRE

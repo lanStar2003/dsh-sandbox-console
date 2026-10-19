@@ -1,0 +1,5 @@
+# dsh-sandbox-console bundle layer: one host plugin, no settings. It changes nothing
+# unless dsh runs inside Electron on Windows (DSH Desktop).
+- insert:
+    - id: dsh-sandbox-console
+      name: dsh-sandbox-console
